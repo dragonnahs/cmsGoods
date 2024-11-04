@@ -1,0 +1,7 @@
+{
+  "editor.formatOnSave": true, // 保存时自动格式化
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.alwaysShowStatus": true
+}
