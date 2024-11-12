@@ -22,6 +22,7 @@ export default function ProgressLink({
     progress.start();
     startTransition(() => {
       router.push(href);
+      console.log(11111);
       progress.done();
     });
   };
