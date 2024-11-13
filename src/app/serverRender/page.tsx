@@ -6,7 +6,6 @@
 //   });
 // };
 
-export default async function ServerRender({ hello }: { hello: string }) {
-  // await getData();
-  return <div>server render{hello}</div>;
+export default async function ServerRender() {
+  return <div>server render</div>;
 }
