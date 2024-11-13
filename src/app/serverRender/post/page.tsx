@@ -3,7 +3,7 @@ import CardItem from './CardItem';
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { id: string };
+  searchParams: Promise<{ id: string }>;
 }) {
   const id = (await searchParams).id;
 
