@@ -1,6 +1,6 @@
 'use client';
 import { createContext } from 'react';
-import { useProgress } from '../hooks/useProgress';
+import { useProgress } from '@/hooks/useProgress';
 type ProgressBarContext = ReturnType<typeof useProgress>;
 export const ProgressBarContext = createContext<ProgressBarContext | null>(
   null,

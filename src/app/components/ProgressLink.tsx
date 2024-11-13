@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useProgressBar } from '../hooks/useProgressBar';
+import { useProgressBar } from '@/hooks/useProgressBar';
 import { startTransition } from 'react';
 import { useRouter } from 'next/navigation';
 

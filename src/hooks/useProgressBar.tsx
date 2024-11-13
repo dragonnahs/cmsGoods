@@ -1,7 +1,7 @@
 'use client';
 
 import { useContext } from 'react';
-import { ProgressBarContext } from '../components/ProgressBar';
+import { ProgressBarContext } from '../app/components/ProgressBar';
 
 export const useProgressBar = () => {
   const progress = useContext(ProgressBarContext);
