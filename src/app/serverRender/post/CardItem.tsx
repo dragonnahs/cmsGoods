@@ -16,7 +16,7 @@ export default function CardItem() {
     const degress = Math.atan2(offSetY, offSetX) * (180 / Math.PI);
 
     innerTarget!.style.transform = ` rotate(${degress + 90}deg) translate(-50%, -50%)`;
-    innerTarget!.style.opacity = `${Math.max(Math.abs(offSetX) / ((rect.width * 10) / 2), Math.abs(offSetY) / ((rect.height * 10) / 2))}`;
+    innerTarget!.style.opacity = `${Math.max(Math.abs(offSetX) / ((rect.width * 5) / 2), Math.abs(offSetY) / ((rect.height * 5) / 2))}`;
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
