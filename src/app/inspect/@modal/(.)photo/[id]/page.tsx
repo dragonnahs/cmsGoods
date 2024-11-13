@@ -1,5 +1,10 @@
 import { Modal } from './modal';
 
-export default async function PhotoModal() {
-  return <Modal>1</Modal>;
+type PageProps = Promise<{
+  id: string;
+}>;
+
+export default async function PhotoModal({ params }: { params: PageProps }) {
+  const { id: photoId } = await params;
+  return <Modal>photoid: {photoId}</Modal>;
 }
