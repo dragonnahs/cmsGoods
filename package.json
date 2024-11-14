@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:migrate:local": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:migrate:prod": "dotenv -e .env -- prisma migrate deploy",
+    "prisma:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "npx ts-node --transpile-only prisma/seed.ts"
   },
   "dependencies": {
     "next": "15.0.2",
@@ -15,7 +21,8 @@
     "react-dom": "19.0.0-rc-02c0e824-20241028"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@prisma/client": "^5.22.0",
+    "@types/node": "^20.17.6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vercel/postgres": "^0.10.0",
@@ -23,7 +30,9 @@
     "eslint": "^8",
     "eslint-config-next": "15.0.2",
     "postcss": "^8",
+    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
   }
 }
