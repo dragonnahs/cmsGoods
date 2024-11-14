@@ -1,12 +1,12 @@
-import SideNav from './components/SideNav';
+import SideNav from '../ui/sidenav';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-screen h-screen flex">
-      <div className="w-32 bg-blue-500">
+    <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
+      <div className="w-full flex-none md:w-64 bg-blue-500">
         <SideNav />
       </div>
-      <div className="flex-1">{children}</div>
+      <div className="grow p-6 md:overflow-y-auto md:p-12">{children}</div>
     </div>
   );
 }
