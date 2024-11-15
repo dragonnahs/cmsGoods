@@ -1,8 +1,16 @@
+/*
+ * @Author: shanlonglong danlonglong@weimiao.cn
+ * @Date: 2024-11-14 18:11:43
+ * @LastEditors: shanlonglong danlonglong@weimiao.cn
+ * @LastEditTime: 2024-11-15 10:03:19
+ * @FilePath: \react-next-p\src\app\ui\dashborard\latest-invoices.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import Image from 'next/image';
 import { lusitana } from '@/app/ui/fonts';
 import { fetchLatestInvoices } from '@/lib/data';
+import ClientImage from './client-image';
 
 export default async function LatestInvoices() {
   const latestInvoices = await fetchLatestInvoices();
@@ -26,7 +34,7 @@ export default async function LatestInvoices() {
                 )}
               >
                 <div className="flex items-center">
-                  <Image
+                  <ClientImage
                     src={invoice.image_url}
                     alt={`${invoice.name}'s profile picture`}
                     className="mr-4 rounded-full"

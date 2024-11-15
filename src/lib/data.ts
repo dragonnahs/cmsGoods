@@ -82,6 +82,28 @@ export async function fetchCardData() {
     throw new Error('Failed to fetch card data.');
   }
 }
+export async function fetchCardDataMy() {
+  try {
+    const invoicsPendingPromise = await sql`SELECT SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS pending,
+    SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS paid FROM invoices`;
+    const numberOfCustomersPromise = await sql`SELECT COUNT(*) FROM customers`;
+    const numberOfInvoicesPromise = await sql`SELECT COUNT(*) FROM invoices`;
+    const data = await Promise.all([
+      invoicsPendingPromise,
+      numberOfCustomersPromise,
+      numberOfInvoicesPromise,
+    ]);
+    return {
+      numberOfCustomers: Number(data[1].rows[0].count ?? '0'),
+      numberOfInvoices: Number(data[2].rows[0].count ?? '0'),
+      totalPaidInvoices: formatCurrency(data[0].rows[0].paid ?? '0'),
+      totalPendingInvoices: formatCurrency(data[0].rows[0].pending ?? '0'),
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch card data.');
+  }
+}
 
 const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredInvoices(
