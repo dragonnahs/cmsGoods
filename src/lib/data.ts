@@ -8,7 +8,7 @@ import {
   Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
-
+export const dynamic = 'force-dynamic'
 export async function fetchRevenue() {
   try {
     // Artificially delay a response for demo purposes.
