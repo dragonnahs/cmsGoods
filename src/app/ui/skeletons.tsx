@@ -216,3 +216,27 @@ export function InvoicesTableSkeleton() {
     </div>
   );
 }
+
+export function EmailsTableSkeleton() {
+  return (
+    <div className="mt-6 w-full">
+      <div className="space-y-4">
+        <div className="h-8 w-full animate-pulse rounded-lg bg-gray-200" />
+        <div className="h-8 w-full animate-pulse rounded-lg bg-gray-200" />
+        <div className="h-8 w-full animate-pulse rounded-lg bg-gray-200" />
+      </div>
+    </div>
+  );
+}
+
+export function AutoRegisterTableSkeleton() {
+  return (
+    <div className="mt-6 w-full">
+      <div className="space-y-4">
+        <div className="h-8 w-full animate-pulse rounded-lg bg-gray-200" />
+        <div className="h-8 w-full animate-pulse rounded-lg bg-gray-200" />
+        <div className="h-8 w-full animate-pulse rounded-lg bg-gray-200" />
+      </div>
+    </div>
+  );
+}

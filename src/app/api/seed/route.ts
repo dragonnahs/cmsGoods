@@ -101,6 +101,19 @@ async function seedRevenue() {
   return insertedRevenue;
 }
 
+async function seedEmails() {
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS emails (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      email_url VARCHAR(255) NOT NULL,
+      status VARCHAR(255) NOT NULL,
+      type INTEGER NOT NULL DEFAULT 0 CHECK (type IN (0, 1))
+    );
+  `;
+}
+
 export async function GET() {
     // return Response.json({
     //   message:
@@ -112,6 +125,7 @@ export async function GET() {
       await seedCustomers();
       await seedInvoices();
       await seedRevenue();
+      await seedEmails();
       await sql`COMMIT`;
   
       return Response.json({ message: 'Database seeded successfully' });

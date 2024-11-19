@@ -6,6 +6,8 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   Revenue,
+  EmailTransaction,
+  EmailForm,
 } from './definitions';
 import { formatCurrency } from './utils';
 export const dynamic = 'force-dynamic'
@@ -235,5 +237,33 @@ export async function fetchFilteredCustomers(query: string) {
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch customer table.');
+  }
+}
+
+export async function fetchEmailTransactions() {
+  try {
+    const data = await sql<EmailTransaction>`
+      SELECT id, email_url, date, status, type
+      FROM email_transactions
+      ORDER BY date DESC
+    `;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch email transactions.');
+  }
+}
+
+export async function fetchEmailTransactionById(id: string) {
+  try {
+    const data = await sql<EmailForm>`
+      SELECT id, email_url, status, type
+      FROM email_transactions
+      WHERE id = ${id}
+    `;
+    return data.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch email transaction.');
   }
 }

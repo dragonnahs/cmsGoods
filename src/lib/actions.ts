@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-19 11:52:26
+ * @LastEditTime: 2024-11-19 17:57:11
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -112,4 +112,63 @@ export async function createInvoice(prevState: unknown, formData: FormData): Pro
 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
+}
+
+export async function createEmailTransaction(formData: FormData) {
+  const { email_url, status, type } = {
+    email_url: formData.get('email_url'),
+    status: formData.get('status'),
+    type: Number(formData.get('type')),
+  };
+
+  try {
+    await sql`
+      INSERT INTO email_transactions (email_url, status, date, type)
+      VALUES (${String(email_url)}, ${String(status)}, ${new Date().toISOString()}, ${type})
+    `;
+    revalidatePath('/transactions/emails');
+    redirect('/transactions/emails');
+  } catch (error) {
+    console.log(error)
+    return {
+      message: 'Database Error: Failed to Create Email Transaction.',
+    };
+  }
+}
+
+export async function updateEmailTransaction(id: string, formData: FormData) {
+  const { email_url, status, type } = {
+    email_url: formData.get('email_url'),
+    status: formData.get('status'),
+    type: Number(formData.get('type')),
+  };
+
+  try {
+    await sql`
+      UPDATE email_transactions
+      SET email_url = ${String(email_url)}, 
+          status = ${String(status)},
+          type = ${type}
+      WHERE id = ${id}
+    `;
+    revalidatePath('/transactions/emails');
+    redirect('/transactions/emails');
+  } catch (error) {
+    console.log(error)
+    return {
+      message: 'Database Error: Failed to Update Email Transaction.',
+    };
+  }
+}
+
+export async function deleteEmailTransaction(id: string) {
+  try {
+    await sql`DELETE FROM email_transactions WHERE id = ${id}`;
+    revalidatePath('/transactions/emails');
+  } catch (error) {
+    console.log(error)
+    return {
+      message: 'Database Error: Failed to Delete Email Transaction.',
+    };
+  }
 }
