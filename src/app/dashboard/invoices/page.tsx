@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-13 12:12:38
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-18 17:15:02
+ * @LastEditTime: 2024-11-19 09:49:15
  * @FilePath: \react-next-p\src\app\dashboard\invoices\page.tsx
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -17,13 +17,13 @@ import { fetchInvoicesPages } from '@/lib/data';
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: {
+  searchParams?: Promise<{
     query?: string;
     page?: string;
-  };
+  }>;
 }) {
-  const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
+  const query = (await searchParams)?.query || '';
+  const currentPage = Number((await searchParams)?.page) || 1;
   const totalPages = await fetchInvoicesPages(query);
 
   return (
