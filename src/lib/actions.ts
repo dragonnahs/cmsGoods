@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-20 10:04:26
+ * @LastEditTime: 2024-11-20 10:25:46
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -177,11 +177,30 @@ export async function registerMainEmail(formData: FormData) {
   const email = formData.get('email');
 
   try {
-    await sql`
-      INSERT INTO emails (email_url, status, date, type)
-      VALUES (${String(email)}, 'pending', ${new Date().toISOString()}, 1)
+    // Check if email already exists
+    const existingEmail = await sql`
+      SELECT id, email_url as email, created_at
+      FROM emails 
+      WHERE email_url = ${String(email)}
     `;
+
+    if (existingEmail.rows.length > 0) {
+      return {
+        message: 'Error: Email already exists.',
+        mainEmail: existingEmail.rows[0]
+      };
+    }
+
+    const result = await sql`
+      INSERT INTO emails (email_url, status, created_at, type)
+      VALUES (${String(email)}, 'pending', ${new Date().toISOString()}, 1)
+      RETURNING id, email_url as email, created_at
+    `;
+
     revalidatePath('/transactions/auto-register');
+    return {
+      mainEmail: result.rows[0]
+    };
   } catch (error) {
     console.log(error);
     return {
@@ -195,13 +214,50 @@ export async function registerSubEmails(formData: FormData) {
   const mainId = formData.get('main_id');
 
   try {
+    // Verify main email exists
+    const mainEmail = await sql`
+      SELECT id FROM emails 
+      WHERE id = ${String(mainId)} AND type = 1
+    `;
+
+    if (mainEmail.rows.length === 0) {
+      return {
+        message: 'Error: Invalid main email ID.',
+      };
+    }
+
     // Generate and insert sub emails
     for (let i = 0; i < quantity; i++) {
-      const randomString = Math.random().toString(36).substring(7);
-      const email = `sub_${randomString}@domain.com`;
+      let isUnique = false;
+      let email = '';
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      // Keep trying to generate a unique email until success or max attempts reached
+      while (!isUnique && attempts < maxAttempts) {
+        const randomString = Math.random().toString(36).substring(7);
+        email = `baozi1020${randomString}@2925.com`;
+
+        // Check if email exists
+        const existingEmail = await sql`
+          SELECT id FROM emails 
+          WHERE email_url = ${email}
+        `;
+
+        if (existingEmail.rows.length === 0) {
+          isUnique = true;
+        }
+        attempts++;
+      }
+
+      if (!isUnique) {
+        return {
+          message: 'Error: Failed to generate unique email addresses.',
+        };
+      }
 
       await sql`
-        INSERT INTO emails (email_url, status, date, type, main_id)
+        INSERT INTO emails (email_url, status, created_at, type, main_id)
         VALUES (${email}, 'pending', ${new Date().toISOString()}, 0, ${String(mainId)})
       `;
     }

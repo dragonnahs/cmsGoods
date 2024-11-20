@@ -17,7 +17,7 @@ export default async function Page() {
 
   return (
     <div className="w-full">
-      <div className="flex w-full items-center justify-between">
+      <div className="flex w-full items-center justify-between mt-6">
         <h1 className="text-2xl">Auto Registration</h1>
       </div>
 
