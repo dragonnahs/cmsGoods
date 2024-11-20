@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-19 17:57:11
+ * @LastEditTime: 2024-11-20 10:04:26
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -169,6 +169,48 @@ export async function deleteEmailTransaction(id: string) {
     console.log(error)
     return {
       message: 'Database Error: Failed to Delete Email Transaction.',
+    };
+  }
+}
+
+export async function registerMainEmail(formData: FormData) {
+  const email = formData.get('email');
+
+  try {
+    await sql`
+      INSERT INTO emails (email_url, status, date, type)
+      VALUES (${String(email)}, 'pending', ${new Date().toISOString()}, 1)
+    `;
+    revalidatePath('/transactions/auto-register');
+  } catch (error) {
+    console.log(error);
+    return {
+      message: 'Database Error: Failed to register main email.',
+    };
+  }
+}
+
+export async function registerSubEmails(formData: FormData) {
+  const quantity = Number(formData.get('quantity'));
+  const mainId = formData.get('main_id');
+
+  try {
+    // Generate and insert sub emails
+    for (let i = 0; i < quantity; i++) {
+      const randomString = Math.random().toString(36).substring(7);
+      const email = `sub_${randomString}@domain.com`;
+
+      await sql`
+        INSERT INTO emails (email_url, status, date, type, main_id)
+        VALUES (${email}, 'pending', ${new Date().toISOString()}, 0, ${String(mainId)})
+      `;
+    }
+
+    revalidatePath('/transactions/auto-register');
+  } catch (error) {
+    console.log(error);
+    return {
+      message: 'Database Error: Failed to register sub emails.',
     };
   }
 }

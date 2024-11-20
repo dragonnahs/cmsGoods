@@ -8,6 +8,8 @@ import {
   Revenue,
   EmailTransaction,
   EmailForm,
+  MainEmailInfo,
+  SubEmailInfo,
 } from './definitions';
 import { formatCurrency } from './utils';
 export const dynamic = 'force-dynamic'
@@ -240,11 +242,51 @@ export async function fetchFilteredCustomers(query: string) {
   }
 }
 
+export async function fetchMainEmail() {
+  try {
+    const data = await sql<MainEmailInfo>`
+      SELECT id, email_url as email, created_at
+      FROM emails
+      WHERE type = 1
+      LIMIT 1
+    `;
+    return data.rows[0] || null;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch main email.');
+  }
+}
+
+export async function fetchSubEmails() {
+  try {
+    const data = await sql<SubEmailInfo>`
+      SELECT 
+        id,
+        email_url as email,
+        date as created_at,
+        main_id
+      FROM emails
+      WHERE type = 0
+      ORDER BY date DESC
+    `;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch sub emails.');
+  }
+}
+
 export async function fetchEmailTransactions() {
   try {
     const data = await sql<EmailTransaction>`
-      SELECT id, email_url, date, status, type
-      FROM email_transactions
+      SELECT 
+        id,
+        email_url,
+        date,
+        status,
+        type,
+        main_id
+      FROM emails
       ORDER BY date DESC
     `;
     return data.rows;

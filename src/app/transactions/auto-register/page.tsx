@@ -9,13 +9,22 @@
 import { Suspense } from 'react';
 import { AutoRegisterTableSkeleton } from '@/app/ui/skeletons';
 import AutoRegisterTable from '@/app/ui/transactions/auto-register-table';
+import AutoRegisterForm from '@/app/ui/transactions/auto-register-form';
+import { fetchMainEmail } from '@/lib/data';
 
 export default async function Page() {
+  const mainEmail = await fetchMainEmail();
+
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
         <h1 className="text-2xl">Auto Registration</h1>
       </div>
+
+      <div className="mt-4">
+        <AutoRegisterForm mainEmail={mainEmail} />
+      </div>
+
       <Suspense fallback={<AutoRegisterTableSkeleton />}>
         <AutoRegisterTable />
       </Suspense>

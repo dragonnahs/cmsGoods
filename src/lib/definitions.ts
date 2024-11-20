@@ -101,3 +101,16 @@ export type User = {
     status: string;
     type: number;
   };
+  
+  export type MainEmailInfo = {
+    id: string;
+    email: string;
+    created_at: string;
+  };
+  
+  export type SubEmailInfo = {
+    id: string;
+    main_email_id: string;
+    email: string;
+    created_at: string;
+  };
