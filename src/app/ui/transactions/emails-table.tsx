@@ -1,7 +1,5 @@
 import { formatDateToLocal } from '@/lib/utils';
 import { EmailTransaction } from '@/lib/definitions';
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { deleteEmailTransaction } from '@/lib/actions';
 
 export default async function EmailsTable({
   emailTransactions,
@@ -22,13 +20,13 @@ export default async function EmailsTable({
                   Type
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
+                  Main Email
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
                   Date
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Status
-                </th>
-                <th scope="col" className="relative py-3 pl-6 pr-3">
-                  <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
@@ -44,20 +42,22 @@ export default async function EmailsTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     <AccountTypeBadge type={email.type} />
                   </td>
+
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(email.created_at)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <EmailStatusBadge status={email.status} />
                   </td>
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex justify-end gap-3">
-                      <UpdateEmailButton id={email.id} />
-                      <DeleteEmailButton id={email.id} />
-                    </div>
-                  </td>
                 </tr>
               ))}
+              {emailTransactions.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-4 text-center text-gray-500">
+                    No emails found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -103,31 +103,5 @@ function EmailStatusBadge({ status }: { status: string }) {
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
-  );
-}
-
-function UpdateEmailButton({ id }: { id: string }) {
-  return (
-    <a
-      href={`/transactions/emails/${id}/edit`}
-      className="rounded-md border p-2 hover:bg-gray-100"
-    >
-      <PencilIcon className="w-4" />
-    </a>
-  );
-}
-
-function DeleteEmailButton({ id }: { id: string }) {
-  return (
-    <form
-      action={async () => {
-        'use server';
-        await deleteEmailTransaction(id);
-      }}
-    >
-      <button className="rounded-md border p-2 hover:bg-gray-100">
-        <TrashIcon className="w-4" />
-      </button>
-    </form>
   );
 }
