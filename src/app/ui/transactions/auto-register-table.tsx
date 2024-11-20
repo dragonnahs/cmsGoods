@@ -1,12 +1,13 @@
-import { fetchEmailsByMainId } from '@/lib/data';
+import { fetchEmailsByEmailUrl } from '@/lib/data';
 import { formatDateToLocal } from '@/lib/utils';
+import { EmailTransaction } from '@/lib/definitions';
 
 export default async function AutoRegisterTable({
-  mainId,
+  mainEmail,
 }: {
-  mainId?: string;
+  mainEmail?: { email: string } | null;
 }) {
-  const emails = await fetchEmailsByMainId(mainId);
+  const emails = mainEmail ? await fetchEmailsByEmailUrl(mainEmail.email) : [];
 
   return (
     <div className="mt-6 flow-root">
@@ -30,7 +31,7 @@ export default async function AutoRegisterTable({
               </tr>
             </thead>
             <tbody className="bg-white">
-              {emails?.map((email) => (
+              {emails?.map((email: EmailTransaction) => (
                 <tr
                   key={email.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none hover:bg-gray-50"
@@ -49,6 +50,13 @@ export default async function AutoRegisterTable({
                   </td>
                 </tr>
               ))}
+              {emails.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-4 text-center text-gray-500">
+                    No emails found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -3,7 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { EnvelopeIcon, UserPlusIcon } from '@heroicons/react/24/outline';
+import {
+  EnvelopeIcon,
+  UserPlusIcon,
+  UsersIcon,
+} from '@heroicons/react/24/outline';
 
 const links = [
   {
@@ -12,9 +16,14 @@ const links = [
     icon: EnvelopeIcon,
   },
   {
-    name: 'Auto Register',
-    href: '/transactions/auto-register',
+    name: 'Main Register',
+    href: '/transactions/auto-register/main',
     icon: UserPlusIcon,
+  },
+  {
+    name: 'Sub Register',
+    href: '/transactions/auto-register/sub',
+    icon: UsersIcon,
   },
 ];
 
