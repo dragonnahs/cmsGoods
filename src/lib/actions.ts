@@ -239,12 +239,7 @@ export async function registerMainEmail(formData: FormData) {
   }
 }
 
-interface ProfileResponse {
-  message: string;
-  data?: {
-    id: string;
-  };
-}
+
 
 export async function registerSubEmails(formData: FormData) {
   const quantity = Number(formData.get('quantity'));
@@ -282,15 +277,18 @@ export async function registerSubEmails(formData: FormData) {
       };
     }
 
-    // Get profile to get referrer ID
-    const profileResponse = await fetch('https://api.trancy.org/1/user/profile', {
-      method: 'GET',
+    // Use the proxy endpoint
+    const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trancy/profile`, {
+      method: 'POST',
       headers: {
-        'Cookie': `trancy=${loginData.data.token}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        token: loginData.data.token,
+      }),
     });
 
-    const profileData: ProfileResponse = await profileResponse.json();
+    const profileData = await profileResponse.json();
     console.log(profileData);
     if (profileData.message !== 'ok' || !profileData.data?.id) {
       return {

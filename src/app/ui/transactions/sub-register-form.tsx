@@ -42,33 +42,14 @@ export default function SubRegisterForm() {
       console.log(loginData);
 
       if (loginData.message === 'ok' && loginData.data?.token) {
-        // Get profile to get referrer ID
-        const profileResponse = await fetch(
-          'https://api.trancy.org/1/user/profile',
-          {
-            method: 'GET',
-            headers: {
-              Cookie: `trancy=${loginData.data.token}`,
-            },
-          },
-        );
+        // Update URL with both email and referrer
+        const params = new URLSearchParams(searchParams);
+        params.set('email', emailUrl);
+        params.set('referrer', loginData.data.id);
+        router.push(`${window.location.pathname}?${params.toString()}`);
 
-        const profileData = await profileResponse.json();
-        console.log(profileData);
-
-        if (profileData.message === 'ok' && profileData.data?.id) {
-          // Update URL with both email and referrer
-          const params = new URLSearchParams(searchParams);
-          params.set('email', emailUrl);
-          params.set('referrer', profileData.data.id);
-          router.push(`${window.location.pathname}?${params.toString()}`);
-
-          setQueryResult(emailData.email);
-          setError('');
-        } else {
-          setError('Failed to get referrer information');
-          setQueryResult(null);
-        }
+        setQueryResult(emailData.email);
+        setError('');
       } else {
         setError('Failed to authenticate');
         setQueryResult(null);
