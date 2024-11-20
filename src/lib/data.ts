@@ -1,3 +1,11 @@
+/*
+ * @Author: shanlonglong danlonglong@weimiao.cn
+ * @Date: 2024-11-15 16:22:57
+ * @LastEditors: shanlonglong danlonglong@weimiao.cn
+ * @LastEditTime: 2024-11-20 13:57:35
+ * @FilePath: \react-next-p\src\lib\data.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { sql } from '@vercel/postgres';
 import {
   CustomerField,
@@ -282,12 +290,12 @@ export async function fetchEmailTransactions() {
       SELECT 
         id,
         email_url,
-        date,
+        created_at,
         status,
         type,
         main_id
       FROM emails
-      ORDER BY date DESC
+      ORDER BY created_at DESC
     `;
     return data.rows;
   } catch (error) {
@@ -307,5 +315,39 @@ export async function fetchEmailTransactionById(id: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch email transaction.');
+  }
+}
+
+export async function fetchEmailsByMainId(mainId?: string) {
+  try {
+    if (!mainId) {
+      // If no mainId provided, get the main email first
+      const mainEmail = await sql<EmailTransaction>`
+        SELECT id, email_url, created_at, status, type, main_id
+        FROM emails
+        WHERE type = 1
+        LIMIT 1
+      `;
+
+      if (mainEmail.rows.length === 0) {
+        return [];
+      }
+
+      mainId = mainEmail.rows[0].id;
+    }
+
+    // Get all related emails (main email and its sub emails)
+    const data = await sql<EmailTransaction>`
+      SELECT id, email_url, created_at, status, type, main_id
+      FROM emails
+      WHERE id = ${mainId}  -- Include the main email
+      OR main_id = ${mainId}  -- Include all sub emails
+      ORDER BY type DESC, created_at ASC  -- Main email first, then sub emails by date
+    `;
+
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch emails.');
   }
 }

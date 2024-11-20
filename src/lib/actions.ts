@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-20 13:35:23
+ * @LastEditTime: 2024-11-20 13:47:33
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -37,6 +37,27 @@ type State = {
   };
   message?: string | null;
 };
+
+async function registerTrancyAccount(email: string) {
+  try {
+    const response = await fetch('https://api.trancy.org/1/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        password: '123456'
+      }),
+    });
+
+    const data = await response.json();
+    return data.code === 200;
+  } catch (error) {
+    console.error('Trancy API Error:', error);
+    return false;
+  }
+}
 
 export async function updateInvoice(formData: FormData): Promise<State> {
  
@@ -191,6 +212,15 @@ export async function registerMainEmail(formData: FormData) {
       };
     }
 
+    // Register with Trancy first
+    const trancySuccess = await registerTrancyAccount(String(email));
+    if (!trancySuccess) {
+      return {
+        message: 'Error: Failed to register with Trancy.',
+      };
+    }
+
+    // If Trancy registration successful, proceed with local database
     const result = await sql`
       INSERT INTO emails (email_url, status, created_at, type)
       VALUES (${String(email)}, 'pending', ${new Date().toISOString()}, 1)
@@ -210,6 +240,7 @@ export async function registerMainEmail(formData: FormData) {
 }
 
 export async function registerSubEmails(formData: FormData) {
+  console.log(formData);
   const quantity = Number(formData.get('quantity'));
   const mainId = formData.get('main_id');
 
@@ -238,7 +269,7 @@ export async function registerSubEmails(formData: FormData) {
         const randomString = Math.random().toString(36).substring(7);
         email = `baozi1020${randomString}@2925.com`;
 
-        // Check if email exists
+        // Check if email exists locally
         const existingEmail = await sql`
           SELECT id FROM emails 
           WHERE email_url = ${email}
@@ -256,6 +287,15 @@ export async function registerSubEmails(formData: FormData) {
         };
       }
 
+      // Register with Trancy first
+      const trancySuccess = await registerTrancyAccount(email);
+      if (!trancySuccess) {
+        return {
+          message: `Error: Failed to register ${email} with Trancy.`,
+        };
+      }
+
+      // If Trancy registration successful, proceed with local database
       await sql`
         INSERT INTO emails (email_url, status, created_at, type, main_id)
         VALUES (${email}, 'pending', ${new Date().toISOString()}, 0, ${String(mainId)})

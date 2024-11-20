@@ -90,7 +90,7 @@ export type User = {
   export type EmailTransaction = {
     id: string;
     email_url: string;
-    date: string;
+    created_at: string;
     status: 'sent' | 'failed' | 'pending';
     type: 0 | 1; // 0 = invite sub account, 1 = main account
   };
