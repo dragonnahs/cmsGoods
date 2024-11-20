@@ -4,31 +4,73 @@ import { useState } from 'react';
 import { Button } from '@/app/ui/invoices/button';
 import { registerSubEmails } from '@/lib/actions';
 import { MainEmailInfo } from '@/lib/definitions';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SubRegisterForm() {
   const [quantity, setQuantity] = useState<number>(1);
   const [emailUrl, setEmailUrl] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [queryResult, setQueryResult] = useState<MainEmailInfo | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleQueryEmail = async () => {
     try {
-      const response = await fetch(`/api/emails/query?email=${emailUrl}`);
-      const data = await response.json();
+      // First get email info
+      const emailResponse = await fetch(`/api/emails/query?email=${emailUrl}`);
+      const emailData = await emailResponse.json();
 
-      if (data.email) {
-        const params = new URLSearchParams(window.location.search);
-        params.set('email', data.email.email);
-        window.history.replaceState(
-          {},
-          '',
-          `${window.location.pathname}?${params.toString()}`,
+      if (!emailData.email) {
+        setError('Email not found');
+        setQueryResult(null);
+        return;
+      }
+
+      // Then try to login with Trancy to get referrer ID
+      const loginResponse = await fetch('https://api.trancy.org/1/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: emailUrl,
+          password: '123456',
+        }),
+      });
+
+      const loginData = await loginResponse.json();
+      console.log(loginData);
+
+      if (loginData.message === 'ok' && loginData.data?.token) {
+        // Get profile to get referrer ID
+        const profileResponse = await fetch(
+          'https://api.trancy.org/1/user/profile',
+          {
+            method: 'GET',
+            headers: {
+              Cookie: `trancy=${loginData.data.token}`,
+            },
+          },
         );
 
-        setQueryResult(data.email);
-        setError('');
+        const profileData = await profileResponse.json();
+        console.log(profileData);
+
+        if (profileData.message === 'ok' && profileData.data?.id) {
+          // Update URL with both email and referrer
+          const params = new URLSearchParams(searchParams);
+          params.set('email', emailUrl);
+          params.set('referrer', profileData.data.id);
+          router.push(`${window.location.pathname}?${params.toString()}`);
+
+          setQueryResult(emailData.email);
+          setError('');
+        } else {
+          setError('Failed to get referrer information');
+          setQueryResult(null);
+        }
       } else {
-        setError('Email not found');
+        setError('Failed to authenticate');
         setQueryResult(null);
       }
     } catch (error) {
@@ -77,6 +119,11 @@ export default function SubRegisterForm() {
             <p className="text-blue-800">
               Created: {new Date(queryResult.created_at).toLocaleDateString()}
             </p>
+            {searchParams.get('referrer') && (
+              <p className="text-blue-800 mt-2">
+                Referrer ID: {searchParams.get('referrer')}
+              </p>
+            )}
           </div>
         </div>
       )}

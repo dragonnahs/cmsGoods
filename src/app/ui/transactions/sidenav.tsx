@@ -7,6 +7,7 @@ import {
   EnvelopeIcon,
   UserPlusIcon,
   UsersIcon,
+  EnvelopeOpenIcon,
 } from '@heroicons/react/24/outline';
 
 const links = [
@@ -24,6 +25,11 @@ const links = [
     name: 'Sub Register',
     href: '/transactions/auto-register/sub',
     icon: UsersIcon,
+  },
+  {
+    name: 'Invite',
+    href: '/transactions/invite',
+    icon: EnvelopeOpenIcon,
   },
 ];
 

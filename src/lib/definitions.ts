@@ -92,7 +92,8 @@ export type User = {
     email_url: string;
     created_at: string;
     status: 'sent' | 'failed' | 'pending';
-    type: 0 | 1; // 0 = invite sub account, 1 = main account
+    type: 0 | 1;
+    referrer?: string;
   };
   
   export type EmailForm = {

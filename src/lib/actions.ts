@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-20 15:33:03
+ * @LastEditTime: 2024-11-20 16:26:29
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -239,6 +239,13 @@ export async function registerMainEmail(formData: FormData) {
   }
 }
 
+interface ProfileResponse {
+  message: string;
+  data?: {
+    id: string;
+  };
+}
+
 export async function registerSubEmails(formData: FormData) {
   const quantity = Number(formData.get('quantity'));
   const mainId = formData.get('main_id');
@@ -246,7 +253,7 @@ export async function registerSubEmails(formData: FormData) {
   try {
     // Verify main email exists
     const mainEmail = await sql`
-      SELECT id FROM emails 
+      SELECT id, email_url FROM emails 
       WHERE id = ${String(mainId)} AND type = 1
     `;
 
@@ -256,6 +263,43 @@ export async function registerSubEmails(formData: FormData) {
       };
     }
 
+    // Login with main email to get token
+    const loginResponse = await fetch('https://api.trancy.org/1/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: mainEmail.rows[0].email_url,
+        password: '123456',
+      }),
+    });
+
+    const loginData = await loginResponse.json();
+    if (loginData.message !== 'ok' || !loginData.data?.token) {
+      return {
+        message: 'Failed to authenticate main email',
+      };
+    }
+
+    // Get profile to get referrer ID
+    const profileResponse = await fetch('https://api.trancy.org/1/user/profile', {
+      method: 'GET',
+      headers: {
+        'Cookie': `trancy=${loginData.data.token}`,
+      },
+    });
+
+    const profileData: ProfileResponse = await profileResponse.json();
+    console.log(profileData);
+    if (profileData.message !== 'ok' || !profileData.data?.id) {
+      return {
+        message: 'Failed to get profile information',
+      };
+    }
+
+    const referrerId = profileData.data.id;
+
     // Generate and insert sub emails
     for (let i = 0; i < quantity; i++) {
       let isUnique = false;
@@ -263,12 +307,10 @@ export async function registerSubEmails(formData: FormData) {
       let attempts = 0;
       const maxAttempts = 10;
 
-      // Keep trying to generate a unique email until success or max attempts reached
       while (!isUnique && attempts < maxAttempts) {
         const randomString = Math.random().toString(36).substring(7);
         email = `baozi1020${randomString}@2925.com`;
 
-        // Check if email exists locally
         const existingEmail = await sql`
           SELECT id FROM emails 
           WHERE email_url = ${email}
@@ -294,10 +336,10 @@ export async function registerSubEmails(formData: FormData) {
         };
       }
 
-      // If Trancy registration successful, proceed with local database
+      // Insert with referrer ID
       await sql`
-        INSERT INTO emails (email_url, status, created_at, type, main_id)
-        VALUES (${email}, 'pending', ${new Date().toISOString()}, 0, ${String(mainId)})
+        INSERT INTO emails (email_url, status, created_at, type, main_id, referrer)
+        VALUES (${email}, 'pending', ${new Date().toISOString()}, 0, ${String(mainId)}, ${referrerId})
       `;
     }
 
