@@ -45,7 +45,7 @@ export default async function EmailsTable({
                     <AccountTypeBadge type={email.type} />
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(email.date)}
+                    {formatDateToLocal(email.created_at)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <EmailStatusBadge status={email.status} />
@@ -121,6 +121,7 @@ function DeleteEmailButton({ id }: { id: string }) {
   return (
     <form
       action={async () => {
+        'use server';
         await deleteEmailTransaction(id);
       }}
     >

@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-20 13:47:33
+ * @LastEditTime: 2024-11-20 14:30:23
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -184,7 +184,7 @@ export async function updateEmailTransaction(id: string, formData: FormData) {
 
 export async function deleteEmailTransaction(id: string) {
   try {
-    await sql`DELETE FROM email_transactions WHERE id = ${id}`;
+    await sql`DELETE FROM email_transactions WHERE id = ${String(id)}`;
     revalidatePath('/transactions/emails');
   } catch (error) {
     console.log(error)
