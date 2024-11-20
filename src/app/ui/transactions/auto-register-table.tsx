@@ -3,11 +3,11 @@ import { formatDateToLocal } from '@/lib/utils';
 import { EmailTransaction } from '@/lib/definitions';
 
 export default async function AutoRegisterTable({
-  mainEmail,
+  queryEmail,
 }: {
-  mainEmail?: { email: string } | null;
+  queryEmail?: string;
 }) {
-  const emails = mainEmail ? await fetchEmailsByEmailUrl(mainEmail.email) : [];
+  const emails = queryEmail ? await fetchEmailsByEmailUrl(queryEmail) : [];
 
   return (
     <div className="mt-6 flow-root">

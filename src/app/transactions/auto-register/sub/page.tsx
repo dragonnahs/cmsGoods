@@ -1,11 +1,24 @@
+/*
+ * @Author: shanlonglong danlonglong@weimiao.cn
+ * @Date: 2024-11-20 15:06:12
+ * @LastEditors: shanlonglong danlonglong@weimiao.cn
+ * @LastEditTime: 2024-11-20 15:35:25
+ * @FilePath: \react-next-p\src\app\transactions\auto-register\sub\page.tsx
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { Suspense } from 'react';
 import { AutoRegisterTableSkeleton } from '@/app/ui/skeletons';
 import AutoRegisterTable from '@/app/ui/transactions/auto-register-table';
 import SubRegisterForm from '@/app/ui/transactions/sub-register-form';
-import { fetchMainEmail } from '@/lib/data';
 
-export default async function Page() {
-  const mainEmail = await fetchMainEmail();
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    email?: string;
+  }>;
+}) {
+  const queryEmail = (await searchParams)?.email || '';
 
   return (
     <div className="w-full">
@@ -14,11 +27,11 @@ export default async function Page() {
       </div>
 
       <div className="mt-4">
-        <SubRegisterForm mainEmail={mainEmail} />
+        <SubRegisterForm />
       </div>
 
       <Suspense fallback={<AutoRegisterTableSkeleton />}>
-        <AutoRegisterTable mainEmail={mainEmail} />
+        <AutoRegisterTable queryEmail={queryEmail} />
       </Suspense>
     </div>
   );

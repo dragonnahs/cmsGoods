@@ -4,69 +4,121 @@ import { useState } from 'react';
 import { Button } from '@/app/ui/invoices/button';
 import { registerSubEmails } from '@/lib/actions';
 import { MainEmailInfo } from '@/lib/definitions';
-import { useRouter } from 'next/navigation';
 
-export default function SubRegisterForm({
-  mainEmail,
-}: {
-  mainEmail: MainEmailInfo | null;
-}) {
+export default function SubRegisterForm() {
   const [quantity, setQuantity] = useState<number>(1);
-  const router = useRouter();
+  const [emailUrl, setEmailUrl] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [queryResult, setQueryResult] = useState<MainEmailInfo | null>(null);
 
-  if (!mainEmail) {
-    router.push('/transactions/auto-register/main');
-    return null;
-  }
+  const handleQueryEmail = async () => {
+    try {
+      const response = await fetch(`/api/emails/query?email=${emailUrl}`);
+      const data = await response.json();
+
+      if (data.email) {
+        const params = new URLSearchParams(window.location.search);
+        params.set('email', data.email.email);
+        window.history.replaceState(
+          {},
+          '',
+          `${window.location.pathname}?${params.toString()}`,
+        );
+
+        setQueryResult(data.email);
+        setError('');
+      } else {
+        setError('Email not found');
+        setQueryResult(null);
+      }
+    } catch (error) {
+      console.error(error);
+      setError('Failed to query email');
+      setQueryResult(null);
+    }
+  };
 
   return (
     <div className="rounded-md bg-gray-50 p-4 md:p-6">
+      {/* Email Query Section */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-4">Main Email Information</h3>
-        <div className="p-4 bg-blue-50 rounded-md">
-          <p className="text-blue-800">Email: {mainEmail.email}</p>
-          <p className="text-blue-800">ID: {mainEmail.id}</p>
-          <p className="text-blue-800">
-            Created: {new Date(mainEmail.created_at).toLocaleDateString()}
-          </p>
+        <h2 className="text-lg font-semibold mb-4">Query Main Email</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Email URL</label>
+            <div className="flex gap-4">
+              <input
+                type="text"
+                value={emailUrl}
+                onChange={(e) => setEmailUrl(e.target.value)}
+                placeholder="Enter email URL"
+                className="flex-1 rounded-md border border-gray-200 py-2 px-3"
+              />
+              <Button
+                type="button"
+                onClick={handleQueryEmail}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              >
+                Query
+              </Button>
+            </div>
+            {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+          </div>
         </div>
       </div>
 
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-4">Register Sub Emails</h2>
-        <form
-          action={async (formData: FormData) => {
-            formData.append('main_id', mainEmail.id);
-            await registerSubEmails(formData);
-          }}
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Number of Sub Accounts
-              </label>
-              <input
-                type="number"
-                name="quantity"
-                min="1"
-                max="100"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                className="rounded-md border border-gray-200 py-2 px-3"
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <Button
-                type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-              >
-                Generate Sub Accounts
-              </Button>
-            </div>
+      {/* Query Result Display */}
+      {queryResult && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-4">Main Email Information</h3>
+          <div className="p-4 bg-blue-50 rounded-md">
+            <p className="text-blue-800">Email: {queryResult.email}</p>
+            <p className="text-blue-800">ID: {queryResult.id}</p>
+            <p className="text-blue-800">
+              Created: {new Date(queryResult.created_at).toLocaleDateString()}
+            </p>
           </div>
-        </form>
-      </div>
+        </div>
+      )}
+
+      {/* Sub Emails Registration Section */}
+      {queryResult && (
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-4">Register Sub Emails</h2>
+          <form
+            action={async (formData: FormData) => {
+              formData.append('main_id', queryResult.id);
+              await registerSubEmails(formData);
+            }}
+          >
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Number of Sub Accounts
+                </label>
+                <input
+                  type="number"
+                  name="quantity"
+                  min="1"
+                  max="100"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="rounded-md border border-gray-200 py-2 px-3"
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <Button
+                  type="submit"
+                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                >
+                  Generate Sub Accounts
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

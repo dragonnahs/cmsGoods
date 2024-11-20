@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-20 14:30:23
+ * @LastEditTime: 2024-11-20 15:33:03
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -52,7 +52,7 @@ async function registerTrancyAccount(email: string) {
     });
 
     const data = await response.json();
-    return data.code === 200;
+    return data.message === 'ok';
   } catch (error) {
     console.error('Trancy API Error:', error);
     return false;
@@ -240,7 +240,6 @@ export async function registerMainEmail(formData: FormData) {
 }
 
 export async function registerSubEmails(formData: FormData) {
-  console.log(formData);
   const quantity = Number(formData.get('quantity'));
   const mainId = formData.get('main_id');
 
