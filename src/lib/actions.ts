@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-20 16:26:29
+ * @LastEditTime: 2024-11-22 15:38:48
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -271,32 +271,15 @@ export async function registerSubEmails(formData: FormData) {
     });
 
     const loginData = await loginResponse.json();
-    if (loginData.message !== 'ok' || !loginData.data?.token) {
-      return {
-        message: 'Failed to authenticate main email',
-      };
-    }
+  
 
-    // Use the proxy endpoint
-    const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trancy/profile`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        token: loginData.data.token,
-      }),
-    });
-
-    const profileData = await profileResponse.json();
-    console.log(profileData);
-    if (profileData.message !== 'ok' || !profileData.data?.id) {
+    if (loginData.message !== 'ok' || !loginData.data?.id) {
       return {
         message: 'Failed to get profile information',
       };
     }
 
-    const referrerId = profileData.data.id;
+    const referrerId = loginData.data.id;
 
     // Generate and insert sub emails
     for (let i = 0; i < quantity; i++) {
