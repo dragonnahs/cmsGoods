@@ -5,6 +5,7 @@ import { EmailTransaction } from '@/lib/definitions';
 import { useState } from 'react';
 import { Button } from '@/app/ui/invoices/button';
 import { updateEmailStatus } from '@/lib/actions';
+import { useToast } from '@/app/ui/toast';
 import { fetchApi } from '@/lib/api/request';
 
 export default function EmailsTable({
@@ -23,6 +24,7 @@ export default function EmailsTable({
       }
     >
   >({});
+  const { showToast } = useToast();
 
   const handleSendCode = async (email: EmailTransaction) => {
     setVerificationStates((prev) => ({
@@ -50,6 +52,7 @@ export default function EmailsTable({
         ...prev,
         [email.id]: { ...prev[email.id], loading: false, success: true },
       }));
+      showToast('Verification code sent successfully');
     } catch (error) {
       console.error(error);
       setVerificationStates((prev) => ({
@@ -60,6 +63,7 @@ export default function EmailsTable({
           error: 'Failed to send code',
         },
       }));
+      showToast('Failed to send verification code', 'error');
     }
   };
 
@@ -84,6 +88,7 @@ export default function EmailsTable({
           referrer: email.referrer,
         }),
       });
+
       if (data.error) {
         throw new Error(data.error);
       }
@@ -96,6 +101,7 @@ export default function EmailsTable({
           [email.id]: { ...prev[email.id], loading: false, success: true },
         }));
 
+        showToast('Code validated successfully');
         window.location.reload();
       } else {
         throw new Error('Validation failed');
@@ -110,6 +116,7 @@ export default function EmailsTable({
           error: 'Failed to validate code',
         },
       }));
+      showToast('Failed to validate code', 'error');
     }
   };
 
