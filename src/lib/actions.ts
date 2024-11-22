@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-22 16:05:08
+ * @LastEditTime: 2024-11-22 16:46:55
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -340,5 +340,19 @@ export async function registerSubEmails(formData: FormData) {
     return {
       message: 'Database Error: Failed to register sub emails.',
     };
+  }
+}
+
+export async function updateEmailStatus(emailId: string, status: string) {
+  try {
+    await sql`
+      UPDATE emails 
+      SET status = ${status}
+      WHERE id = ${emailId}
+    `;
+    revalidatePath('/transactions/invite');
+  } catch (error) {
+    console.error('Failed to update email status:', error);
+    throw new Error('Failed to update email status');
   }
 }
