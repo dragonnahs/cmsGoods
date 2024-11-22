@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-15 16:22:57
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-20 14:52:09
+ * @LastEditTime: 2024-11-22 15:12:59
  * @FilePath: \react-next-p\src\lib\data.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -324,27 +324,7 @@ export async function fetchEmailsByEmailUrl(emailUrl?: string) {
       return [];
     }
 
-    // First get the main email info
-    const mainEmail = await sql<EmailTransaction>`
-      SELECT 
-        id, 
-        email_url, 
-        created_at, 
-        status, 
-        type,
-        main_id
-      FROM emails
-      WHERE email_url = ${emailUrl}
-      LIMIT 1
-    `;
-
-    if (mainEmail.rows.length === 0) {
-      return [];
-    }
-
-    const mainEmailId = mainEmail.rows[0].id;
-
-    // Then get all related emails (main email and its sub emails)
+    // Get all related emails (main email and its sub emails)
     const data = await sql<EmailTransaction>`
       SELECT 
         id, 
@@ -352,10 +332,11 @@ export async function fetchEmailsByEmailUrl(emailUrl?: string) {
         created_at, 
         status, 
         type,
-        main_id
+        main_id,
+        reffer
       FROM emails
-      WHERE id = ${mainEmailId}  -- Include the main email
-      OR main_id = ${mainEmailId}  -- Include all sub emails
+      WHERE id = (SELECT id FROM emails WHERE email_url = ${emailUrl})  -- Include the main email
+      OR main_id = (SELECT id FROM emails WHERE email_url = ${emailUrl})  -- Include all sub emails
       ORDER BY type DESC, created_at ASC  -- Main email first, then sub emails by date
     `;
 

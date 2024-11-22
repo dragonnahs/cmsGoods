@@ -94,6 +94,7 @@ export type User = {
     status: 'sent' | 'failed' | 'pending';
     type: 0 | 1;
     referrer?: string;
+    main_id?: string;
   };
   
   export type EmailForm = {

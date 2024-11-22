@@ -28,6 +28,9 @@ export default async function AutoRegisterTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   Status
                 </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Referrer
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -48,11 +51,14 @@ export default async function AutoRegisterTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     <StatusBadge status={email.status} />
                   </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {email.referrer || '-'}
+                  </td>
                 </tr>
               ))}
               {emails.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-4 text-center text-gray-500">
+                  <td colSpan={5} className="py-4 text-center text-gray-500">
                     No emails found
                   </td>
                 </tr>
