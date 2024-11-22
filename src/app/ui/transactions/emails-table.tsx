@@ -20,13 +20,13 @@ export default async function EmailsTable({
                   Type
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Main Email
+                  Status
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Date
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Status
+                  Referrer
                 </th>
               </tr>
             </thead>
@@ -42,12 +42,14 @@ export default async function EmailsTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     <AccountTypeBadge type={email.type} />
                   </td>
-
+                  <td className="whitespace-nowrap px-3 py-3">
+                    <StatusBadge status={email.status} />
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(email.created_at)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    <EmailStatusBadge status={email.status} />
+                    {email.referrer || '-'}
                   </td>
                 </tr>
               ))}
@@ -88,7 +90,7 @@ function AccountTypeBadge({ type }: { type: number }) {
   );
 }
 
-function EmailStatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: { status: string }) {
   const statusStyles = {
     sent: 'bg-green-500/10 text-green-700',
     failed: 'bg-red-500/10 text-red-700',

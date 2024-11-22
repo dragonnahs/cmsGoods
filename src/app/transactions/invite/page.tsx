@@ -10,8 +10,18 @@ import { Suspense } from 'react';
 import { EmailsTableSkeleton } from '@/app/ui/skeletons';
 import InviteForm from '@/app/ui/transactions/invite-form';
 import EmailsTable from '@/app/ui/transactions/emails-table';
+import { fetchEmailsByEmailUrl } from '@/lib/data';
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: {
+    email?: string;
+  };
+}) {
+  const emailUrl = searchParams?.email || '';
+  const emails = await fetchEmailsByEmailUrl(emailUrl);
+
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between mt-6">
@@ -23,7 +33,7 @@ export default async function Page() {
       </div>
 
       <Suspense fallback={<EmailsTableSkeleton />}>
-        <EmailsTable emailTransactions={[]} />
+        <EmailsTable emailTransactions={emails} />
       </Suspense>
     </div>
   );
