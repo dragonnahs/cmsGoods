@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-22 15:38:48
+ * @LastEditTime: 2024-11-22 16:05:08
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { fetchApi } from './api/request';
 
 // Create a schema for invoice validation
 const FormSchema = z.object({
@@ -258,7 +259,7 @@ export async function registerSubEmails(formData: FormData) {
       };
     }
 
-    // Login with main email to get token
+    // Login with main email to get token and ID
     const loginResponse = await fetch('https://api.trancy.org/1/login', {
       method: 'POST',
       headers: {
@@ -271,11 +272,9 @@ export async function registerSubEmails(formData: FormData) {
     });
 
     const loginData = await loginResponse.json();
-  
-
-    if (loginData.message !== 'ok' || !loginData.data?.id) {
+    if (loginData.message !== 'ok' || !loginData.data?.token || !loginData.data?.id) {
       return {
-        message: 'Failed to get profile information',
+        message: 'Failed to authenticate main email',
       };
     }
 
@@ -309,9 +308,20 @@ export async function registerSubEmails(formData: FormData) {
         };
       }
 
-      // Register with Trancy first
-      const trancySuccess = await registerTrancyAccount(email);
-      if (!trancySuccess) {
+      // Register with Trancy using our proxy API
+      const signupData = await fetchApi(`/api/trancy/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password: '123456',
+          referrer: referrerId,
+        }),
+      });
+
+      if (signupData.message !== 'ok') {
         return {
           message: `Error: Failed to register ${email} with Trancy.`,
         };
