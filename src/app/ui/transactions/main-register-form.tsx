@@ -17,7 +17,7 @@ export default function MainRegisterForm({
 
   const handleMainEmailSubmit = async (formData: FormData) => {
     const middlePart = formData.get('email') as string;
-    const fullEmail = `baozi1020${middlePart}@2925.com`;
+    const fullEmail = middlePart;
 
     const newFormData = new FormData();
     newFormData.append('email', fullEmail);
@@ -61,17 +61,16 @@ export default function MainRegisterForm({
         <form action={handleMainEmailSubmit}>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">baozi1020</span>
+              {/* <span className="text-gray-600">baozi1020</span> */}
               <input
                 type="text"
                 name="email"
                 placeholder="Enter middle part"
                 className="flex-1 rounded-md border border-gray-200 py-2 px-3"
                 required
-                pattern="[a-zA-Z0-9]+"
                 title="Only alphanumeric characters are allowed"
               />
-              <span className="text-gray-600">@2925.com</span>
+              {/* <span className="text-gray-600">@2925.com</span> */}
               <Button
                 type="button"
                 onClick={handleQueryEmail}

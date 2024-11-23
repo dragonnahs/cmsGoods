@@ -337,7 +337,7 @@ export async function fetchEmailsByEmailUrl(emailUrl?: string) {
       FROM emails
       WHERE id = (SELECT id FROM emails WHERE email_url = ${emailUrl})  -- Include the main email
       OR main_id = (SELECT id FROM emails WHERE email_url = ${emailUrl})  -- Include all sub emails
-      ORDER BY type DESC, created_at ASC  -- Main email first, then sub emails by date
+      ORDER BY type DESC, created_at DESC  -- Main email first, then sub emails by date
     `;
 
     return data.rows;

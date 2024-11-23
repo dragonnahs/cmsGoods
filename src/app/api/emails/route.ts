@@ -20,7 +20,6 @@ export async function GET() {
         'Content-Type': 'application/json',
       },
     });
-    console.log(response)
 
     const data = await response.json();
     if (data.code !== 200) {

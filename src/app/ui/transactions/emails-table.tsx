@@ -54,7 +54,7 @@ export default function EmailsTable({
         attempts++;
 
         if (attempts >= maxAttempts) {
-          showToast('未能获取到匹配的验证码，请重试');
+          throw new Error('未能获取到匹配的验证码，请重试');
           return false;
         }
 
@@ -99,7 +99,7 @@ export default function EmailsTable({
       if (data.error) {
         throw new Error(data.error);
       }
-      await pollForVerificationCode(email, 2);
+      await pollForVerificationCode(email, 10);
     } catch (error) {
       console.error(error);
       setVerificationStates((prev) => ({
@@ -110,7 +110,7 @@ export default function EmailsTable({
           error: 'Failed to send code',
         },
       }));
-      showToast('Failed to send verification code', 'error');
+      showToast(error instanceof Error ? error.message : 'Failed to send code');
     }
   };
 
