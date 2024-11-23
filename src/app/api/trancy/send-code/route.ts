@@ -42,7 +42,6 @@ export async function POST(request: Request) {
     });
 
     const codeData = await codeResponse.json();
-    console.log(codeData);
     return NextResponse.json(codeData);
   } catch (error) {
     console.error('API Error:', error);

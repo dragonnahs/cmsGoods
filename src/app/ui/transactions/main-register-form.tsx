@@ -5,6 +5,7 @@ import { Button } from '@/app/ui/invoices/button';
 import { registerMainEmail } from '@/lib/actions';
 import { MainEmailInfo } from '@/lib/definitions';
 import { useRouter } from 'next/navigation';
+import { fetchApi } from '@/lib/api/request';
 
 export default function MainRegisterForm({
   mainEmail,
@@ -23,6 +24,7 @@ export default function MainRegisterForm({
     newFormData.append('email', fullEmail);
 
     const result = await registerMainEmail(newFormData);
+    console.log(result);
     if (result?.message) {
       setError(result.message);
       if (result.mainEmail) {
@@ -40,8 +42,7 @@ export default function MainRegisterForm({
     const fullEmail = `baozi1020${middlePart}@2925.com`;
 
     try {
-      const response = await fetch(`/api/emails/query?email=${fullEmail}`);
-      const data = await response.json();
+      const data = await fetchApi(`/api/emails/query?email=${fullEmail}`);
 
       if (data.email) {
         router.push('/transactions/auto-register/sub');
