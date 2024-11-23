@@ -25,6 +25,58 @@ export default function EmailsTable({
     >
   >({});
   const { showToast } = useToast();
+  const pollForVerificationCode = async (email: EmailTransaction, maxAttempts = 10) => {
+    const email_url = email.email_url;
+    let attempts = 0;
+
+    const checkEmail = async () => {
+      try {
+        const emailData = await fetchApi('/api/emails');
+        if (emailData.code !== 200) {
+          throw new Error(emailData.message);
+        }
+
+        if (!emailData.result?.list?.length) {
+          throw new Error('No emails found');
+        }
+
+        const latestEmail = emailData.result.list[0];
+        // Check if the email matches the target email
+        if (latestEmail.toAddress.includes(email_url)) {
+          // Extract the last 4 digits from subject
+          const verificationCode = latestEmail.subject.slice(-4);
+
+          // Call your verification API here
+          handleValidateCode(email, verificationCode);
+        }
+
+        // If we reach here, either email didn't match or verification failed
+        attempts++;
+
+        if (attempts >= maxAttempts) {
+          showToast('未能获取到匹配的验证码，请重试');
+          return false;
+        }
+
+        // Wait 5 seconds before next attempt
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        return checkEmail();
+
+      } catch (error) {
+        console.error('Error checking emails:', error);
+        attempts++;
+
+        if (attempts >= maxAttempts) {
+          throw new Error('Failed to get verification code');
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        return checkEmail();
+      }
+    };
+
+    return checkEmail();
+  };
 
   const handleSendCode = async (email: EmailTransaction) => {
     setVerificationStates((prev) => ({
@@ -47,12 +99,7 @@ export default function EmailsTable({
       if (data.error) {
         throw new Error(data.error);
       }
-
-      setVerificationStates((prev) => ({
-        ...prev,
-        [email.id]: { ...prev[email.id], loading: false, success: true },
-      }));
-      showToast('Verification code sent successfully');
+      await pollForVerificationCode(email, 2);
     } catch (error) {
       console.error(error);
       setVerificationStates((prev) => ({
@@ -67,15 +114,7 @@ export default function EmailsTable({
     }
   };
 
-  const handleValidateCode = async (email: EmailTransaction) => {
-    const state = verificationStates[email.id];
-    if (!state?.code) return;
-
-    setVerificationStates((prev) => ({
-      ...prev,
-      [email.id]: { ...prev[email.id], loading: true, error: undefined },
-    }));
-
+  const handleValidateCode = async (email: EmailTransaction, code: string) => {
     try {
       const data = await fetchApi('/api/trancy/validate-code', {
         method: 'POST',
@@ -84,7 +123,7 @@ export default function EmailsTable({
         },
         body: JSON.stringify({
           email: email.email_url,
-          code: state.code,
+          code: code,
           referrer: email.referrer,
         }),
       });
@@ -145,9 +184,6 @@ export default function EmailsTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   Verification
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Validate
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -190,37 +226,7 @@ export default function EmailsTable({
                         </p>
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={state.code || ''}
-                          onChange={(e) =>
-                            setVerificationStates((prev) => ({
-                              ...prev,
-                              [email.id]: {
-                                ...prev[email.id],
-                                code: e.target.value,
-                              },
-                            }))
-                          }
-                          className="w-24 rounded border px-2 py-1"
-                          placeholder="Enter code"
-                        />
-                        <Button
-                          onClick={() => handleValidateCode(email)}
-                          disabled={state.loading || !state.code}
-                          className="bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600"
-                        >
-                          {state.loading ? 'Validating...' : 'Validate'}
-                        </Button>
-                      </div>
-                      {state.error && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {state.error}
-                        </p>
-                      )}
-                    </td>
+
                   </tr>
                 );
               })}
@@ -252,9 +258,8 @@ function AccountTypeBadge({ type }: { type: number }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-        typeStyles[type as keyof typeof typeStyles]
-      }`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${typeStyles[type as keyof typeof typeStyles]
+        }`}
     >
       {typeText[type as keyof typeof typeText]}
     </span>
@@ -270,9 +275,8 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-        statusStyles[status as keyof typeof statusStyles]
-      }`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusStyles[status as keyof typeof statusStyles]
+        }`}
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
