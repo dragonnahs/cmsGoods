@@ -25,6 +25,7 @@ export default function EmailsTable({
     >
   >({});
   const { showToast } = useToast();
+  const [token, setToken] = useState<string>('');
   const pollForVerificationCode = async (
     email: EmailTransaction,
     maxAttempts = 10,
@@ -34,7 +35,7 @@ export default function EmailsTable({
 
     const checkEmail = async () => {
       try {
-        const emailData = await fetchApi('/api/emails');
+        const emailData = await fetchApi(`/api/emails?token=${token}`);
         if (emailData.code !== 200) {
           throw new Error(emailData.message);
         }
@@ -88,6 +89,9 @@ export default function EmailsTable({
     }));
 
     try {
+      const tokenData = await fetchApi('/api/emails/token');
+      console.log('tokenData', tokenData);
+      setToken(tokenData.token);
       const data = await fetchApi('/api/trancy/send-code', {
         method: 'POST',
         headers: {

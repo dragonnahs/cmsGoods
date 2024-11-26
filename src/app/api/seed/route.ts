@@ -4,6 +4,16 @@ import { invoices, customers, revenue, users } from '@/lib/placeholder-data';
 
 // const client = await db.connect();
 
+async function seedEmailTokens() {
+  await sql`CREATE EXTENSION IF NOT EXISTS "email_tokens"`;
+  await sql`CREATE TABLE email_tokens (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email_url VARCHAR(255) NOT NULL UNIQUE,
+  token VARCHAR(255) NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);`
+}
+
 async function seedUsers() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   await sql`
@@ -126,6 +136,7 @@ export async function GET() {
       await seedInvoices();
       await seedRevenue();
       await seedEmails();
+      await seedEmailTokens();
       await sql`COMMIT`;
   
       return Response.json({ message: 'Database seeded successfully' });

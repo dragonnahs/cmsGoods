@@ -116,3 +116,10 @@ export type User = {
     email: string;
     created_at: string;
   };
+  
+  export type EmailToken = {
+    id: string;
+    email_url: string;
+    token: string;
+    updated_at: string;
+  };

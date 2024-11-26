@@ -2,7 +2,7 @@
  * @Author: shanlonglong danlonglong@weimiao.cn
  * @Date: 2024-11-19 10:06:53
  * @LastEditors: shanlonglong danlonglong@weimiao.cn
- * @LastEditTime: 2024-11-22 16:46:55
+ * @LastEditTime: 2024-11-26 14:28:57
  * @FilePath: \react-next-p\src\lib\actions
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -354,5 +354,36 @@ export async function updateEmailStatus(emailId: string, status: string) {
   } catch (error) {
     console.error('Failed to update email status:', error);
     throw new Error('Failed to update email status');
+  }
+}
+
+export async function updateEmailToken(emailUrl: string, token: string) {
+  try {
+    // Check if token exists for this email
+    const existingToken = await sql`
+      SELECT id FROM email_tokens 
+      WHERE email_url = ${emailUrl}
+    `;
+
+    if (existingToken.rows.length > 0) {
+      // Update existing token
+      await sql`
+        UPDATE email_tokens 
+        SET token = ${token}, 
+            updated_at = ${new Date().toISOString()}
+        WHERE email_url = ${emailUrl}
+      `;
+    } else {
+      // Insert new token
+      await sql`
+        INSERT INTO email_tokens (email_url, token, updated_at)
+        VALUES (${emailUrl}, ${token}, ${new Date().toISOString()})
+      `;
+    }
+
+    revalidatePath('/transactions/invite');
+  } catch (error) {
+    console.error('Failed to update token:', error);
+    throw new Error('Failed to update token');
   }
 }
