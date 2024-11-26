@@ -3,7 +3,7 @@
 import { formatDateToLocal } from '@/lib/utils';
 import { EmailTransaction } from '@/lib/definitions';
 import { useState } from 'react';
-import { Button } from '@/app/ui/invoices/button';
+import { Button } from '@/app/ui/button';
 import { updateEmailStatus } from '@/lib/actions';
 import { useToast } from '@/app/ui/toast';
 import { fetchApi } from '@/lib/api/request';
@@ -25,7 +25,10 @@ export default function EmailsTable({
     >
   >({});
   const { showToast } = useToast();
-  const pollForVerificationCode = async (email: EmailTransaction, maxAttempts = 10) => {
+  const pollForVerificationCode = async (
+    email: EmailTransaction,
+    maxAttempts = 10,
+  ) => {
     const email_url = email.email_url;
     let attempts = 0;
 
@@ -59,19 +62,19 @@ export default function EmailsTable({
         }
 
         // Wait 5 seconds before next attempt
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         return checkEmail();
-
       } catch (error) {
         console.error('Error checking emails:', error);
-        attempts++;
+        throw new Error('Failed to get verification code');
+        // attempts++;
 
-        if (attempts >= maxAttempts) {
-          throw new Error('Failed to get verification code');
-        }
+        // if (attempts >= maxAttempts) {
+        //   throw new Error('Failed to get verification code');
+        // }
 
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        return checkEmail();
+        // await new Promise((resolve) => setTimeout(resolve, 5000));
+        // return checkEmail();
       }
     };
 
@@ -226,7 +229,6 @@ export default function EmailsTable({
                         </p>
                       )}
                     </td>
-
                   </tr>
                 );
               })}
@@ -258,8 +260,9 @@ function AccountTypeBadge({ type }: { type: number }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${typeStyles[type as keyof typeof typeStyles]
-        }`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+        typeStyles[type as keyof typeof typeStyles]
+      }`}
     >
       {typeText[type as keyof typeof typeText]}
     </span>
@@ -275,8 +278,9 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusStyles[status as keyof typeof statusStyles]
-        }`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+        statusStyles[status as keyof typeof statusStyles]
+      }`}
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>

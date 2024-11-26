@@ -1,3 +1,11 @@
+/*
+ * @Author: shanlonglong danlonglong@weimiao.cn
+ * @Date: 2024-11-25 10:54:06
+ * @LastEditors: shanlonglong danlonglong@weimiao.cn
+ * @LastEditTime: 2024-11-26 12:00:14
+ * @FilePath: \react-next-p\src\app\api\emails\route.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { NextResponse } from 'next/server';
 
 const BASE_URL = 'https://2925.com/mailv2/maildata/MailList/mails';
@@ -20,6 +28,9 @@ export async function GET() {
         'Content-Type': 'application/json',
       },
     });
+    if (response.status === 401) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const data = await response.json();
     if (data.code !== 200) {
