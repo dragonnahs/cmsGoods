@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         email,
-        password: '123456',
+        password: 'trancy123456',
       }),
     });
 

@@ -34,7 +34,7 @@ export default function SubRegisterForm() {
         },
         body: JSON.stringify({
           email: emailUrl,
-          password: '123456',
+          password: 'trancy123456',
         }),
       });
 

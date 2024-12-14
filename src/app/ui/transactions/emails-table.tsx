@@ -106,7 +106,7 @@ export default function EmailsTable({
       if (data.error) {
         throw new Error(data.error);
       }
-      await pollForVerificationCode(email, 10);
+      await pollForVerificationCode(email, 30);
     } catch (error) {
       console.error(error);
       setVerificationStates((prev) => ({
@@ -264,9 +264,8 @@ function AccountTypeBadge({ type }: { type: number }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-        typeStyles[type as keyof typeof typeStyles]
-      }`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${typeStyles[type as keyof typeof typeStyles]
+        }`}
     >
       {typeText[type as keyof typeof typeText]}
     </span>
@@ -282,9 +281,8 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-        statusStyles[status as keyof typeof statusStyles]
-      }`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${statusStyles[status as keyof typeof statusStyles]
+        }`}
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>

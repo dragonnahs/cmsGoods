@@ -48,7 +48,7 @@ async function registerTrancyAccount(email: string) {
       },
       body: JSON.stringify({
         email: email,
-        password: '123456'
+        password: 'trancy123456'
       }),
     });
 
@@ -61,7 +61,7 @@ async function registerTrancyAccount(email: string) {
 }
 
 export async function updateInvoice(formData: FormData): Promise<State> {
- 
+
   // Validate form fields using Zod
   const validatedFields = FormSchema.safeParse({
     id: formData.get('id'),
@@ -267,7 +267,7 @@ export async function registerSubEmails(formData: FormData) {
       },
       body: JSON.stringify({
         email: mainEmail.rows[0].email_url,
-        password: '123456',
+        password: 'trancy123456',
       }),
     });
 
@@ -316,7 +316,7 @@ export async function registerSubEmails(formData: FormData) {
         },
         body: JSON.stringify({
           email,
-          password: '123456',
+          password: 'trancy123456',
           referrer: referrerId,
         }),
       });

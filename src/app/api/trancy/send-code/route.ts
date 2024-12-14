@@ -8,7 +8,6 @@
  */
 import { NextResponse } from 'next/server';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import fetch from 'node-fetch';
 
 export async function POST(request: Request) {
   const { email, referrer } = await request.json();
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         email,
-        password: '123456',
+        password: 'trancy123456',
       }),
       agent: proxyAgent,
     });
